@@ -2,9 +2,10 @@ import sbt._
 
 object Dependencies {
   val AkkaVersion = "2.6.19"
+  val EventHubsVersion = "5.12.2"
 
   // Azure Eventhub
-  val azureMessagingEventHub = "com.azure" % "azure-messaging-eventhubs" % "5.12.2"
+  val azureMessagingEventHub = "com.azure" % "azure-messaging-eventhubs" % EventHubsVersion
 
   // Akka Stream and Alpakka Kafka
   val akkaTyped       = "com.typesafe.akka" %% "akka-actor-typed" % AkkaVersion

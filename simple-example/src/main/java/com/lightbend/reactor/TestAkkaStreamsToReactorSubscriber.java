@@ -12,7 +12,7 @@ import reactor.core.publisher.BaseSubscriber;
 import java.util.Arrays;
 import java.util.List;
 
-public class TestAkkaStreamsToReactor {
+public class TestAkkaStreamsToReactorSubscriber {
 
     public static Behavior<NotUsed> rootBehavior() {
         return Behaviors.setup(context -> {
