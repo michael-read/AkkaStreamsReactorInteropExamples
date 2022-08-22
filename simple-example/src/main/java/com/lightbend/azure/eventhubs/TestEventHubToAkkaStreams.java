@@ -1,4 +1,4 @@
-package com.lightbend.reactor;
+package com.lightbend.azure.eventhubs;
 
 import akka.NotUsed;
 import akka.actor.typed.ActorSystem;
@@ -6,10 +6,9 @@ import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.stream.javadsl.Sink;
 import akka.stream.javadsl.Source;
-
 import reactor.core.publisher.Flux;
 
-public class TestReactorToAkkaStreams {
+public class TestEventHubToAkkaStreams {
 
     public static Behavior<NotUsed> rootBehavior() {
         return Behaviors.setup(context -> {

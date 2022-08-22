@@ -1,19 +1,24 @@
 package com.lightbend.reactor;
 
+import akka.Done;
 import akka.NotUsed;
 import akka.actor.typed.ActorSystem;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.Behaviors;
+import akka.stream.Graph;
+import akka.stream.SinkShape;
+import akka.stream.SourceShape;
+import akka.stream.javadsl.Keep;
 import akka.stream.javadsl.Sink;
 import akka.stream.javadsl.Source;
 import org.reactivestreams.Subscription;
-import org.reactivestreams.Subscriber;
 import reactor.core.publisher.BaseSubscriber;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletionStage;
 
-public class TestAkkaStreamsToReactorSubscriber {
+public class TestAkkaStreamsToCustomSubscriberSink {
 
     public static Behavior<NotUsed> rootBehavior() {
         return Behaviors.setup(context -> {
@@ -36,12 +41,17 @@ public class TestAkkaStreamsToReactorSubscriber {
 
             ReactorSubscriber<String> reactorSubscriber = new ReactorSubscriber<String>();
 
-            Source.from(iterable)
+            Graph<SinkShape<String>, CompletionStage<Done>> customSink = new ReactorCustomSubscriberSink<>(reactorSubscriber);
+
+            CompletionStage<Done> done = Source.from(iterable)
                     .map(String::toUpperCase)
-                    .to(Sink.fromSubscriber(reactorSubscriber))
+                    .toMat(Sink.fromGraph(customSink), Keep.right())
                     .run(context.getSystem());
 
-            context.getSystem().terminate();
+            done.thenRun(() -> {
+                context.getSystem().terminate();
+            });
+
             return Behaviors.empty();
         });
     }
