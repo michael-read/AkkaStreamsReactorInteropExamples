@@ -38,7 +38,7 @@ public class ReactorCustomSubscriberSink<T> extends GraphStageWithMaterializedVa
         return new Tuple2<>(new GraphStageLogic(shape()) {
 
             /*
-            We need to provide a subscription for the onSubscribe, but not sure we
+            We need to provide a subscription for the onSubscribe
              */
             final Subscription subscription = new Subscription() {
                 @Override
@@ -57,7 +57,6 @@ public class ReactorCustomSubscriberSink<T> extends GraphStageWithMaterializedVa
             // This requests one element at the Sink startup.
             @Override
             public void preStart() {
-//                pull(in);
                 subscriber.onSubscribe(subscription);
             }
 
@@ -69,7 +68,6 @@ public class ReactorCustomSubscriberSink<T> extends GraphStageWithMaterializedVa
                             public void onPush() throws Exception {
                                  T element = grab(in);
                                  subscriber.onNext(element);
-//                                 pull(in); // this is handled in the subscription
                             }
 
                             /*
