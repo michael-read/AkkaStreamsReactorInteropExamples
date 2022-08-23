@@ -1,4 +1,4 @@
-package com.lightbend.azure.eventhubs;
+package com.mread.azure.eventhubs;
 
 import akka.NotUsed;
 import akka.actor.typed.ActorSystem;

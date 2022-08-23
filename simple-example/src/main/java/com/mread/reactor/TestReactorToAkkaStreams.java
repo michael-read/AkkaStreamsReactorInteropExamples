@@ -1,4 +1,4 @@
-package com.lightbend.reactor;
+package com.mread.reactor;
 
 import akka.NotUsed;
 import akka.actor.typed.ActorSystem;
