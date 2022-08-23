@@ -13,18 +13,18 @@ import akka.stream.javadsl.Source;
 import com.lightbend.ops.ReactorCustomSubscriberSink;
 import org.reactivestreams.Subscription;
 import reactor.core.publisher.BaseSubscriber;
+import reactor.core.publisher.Flux;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 
-public class TestAkkaStreamsToCustomSubscriberSink {
+public class TestReactorCustomSubscriberSink {
 
     public static Behavior<NotUsed> rootBehavior() {
         return Behaviors.setup(context -> {
 
-            List<String> x = Arrays.asList("red", "white", "blue");
-            Iterable<String> iterable = () -> x.iterator();
+            Flux<String> x = Flux.just("red", "white", "blue");
 
             class ReactorSubscriber<T> extends BaseSubscriber<T> {
 
@@ -37,13 +37,21 @@ public class TestAkkaStreamsToCustomSubscriberSink {
                     System.out.println(value);
                     request(1);
                 }
+
+                public void hookOnComplete() {
+
+                }
+
+                public void hookOnCancel() {
+
+                }
             }
 
             ReactorSubscriber<String> reactorSubscriber = new ReactorSubscriber<String>();
 
             Graph<SinkShape<String>, CompletionStage<Done>> customSink = new ReactorCustomSubscriberSink<>(reactorSubscriber);
 
-            CompletionStage<Done> done = Source.from(iterable)
+            CompletionStage<Done> done = Source.fromPublisher(x)
                     .map(String::toUpperCase)
                     .toMat(Sink.fromGraph(customSink), Keep.right())
                     .run(context.getSystem());

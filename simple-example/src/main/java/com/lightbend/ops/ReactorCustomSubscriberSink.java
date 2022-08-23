@@ -1,4 +1,4 @@
-package com.lightbend.reactor;
+package com.lightbend.ops;
 
 import akka.Done;
 import akka.stream.Attributes;
@@ -7,8 +7,8 @@ import akka.stream.SinkShape;
 import akka.stream.stage.AbstractInHandler;
 import akka.stream.stage.GraphStageLogic;
 import akka.stream.stage.GraphStageWithMaterializedValue;
-import reactor.core.publisher.BaseSubscriber;
 import org.reactivestreams.Subscription;
+import org.reactivestreams.Subscriber;
 
 import scala.Tuple2;
 
@@ -20,9 +20,9 @@ public class ReactorCustomSubscriberSink<T> extends GraphStageWithMaterializedVa
 
     private final SinkShape<T> shape = SinkShape.of(in);
 
-    private final BaseSubscriber<T> subscriber;
+    private final Subscriber<T> subscriber;
 
-    public ReactorCustomSubscriberSink(BaseSubscriber<T> subscriber) {
+    public ReactorCustomSubscriberSink(Subscriber<T> subscriber) {
         this.subscriber = subscriber;
     }
 
@@ -49,6 +49,7 @@ public class ReactorCustomSubscriberSink<T> extends GraphStageWithMaterializedVa
 
                 @Override
                 public void cancel() {
+                    // implements close on cancel (must be after any pending onComplete)
                     System.out.println("subscription cancel");
                 }
             };
@@ -82,7 +83,7 @@ public class ReactorCustomSubscriberSink<T> extends GraphStageWithMaterializedVa
                                 System.out.println("received onUpstreamFinish");
                                 finishPromise.complete(Done.done());
                                 completeStage();
-                                subscriber.cancel();
+                                subscriber.onComplete();
                             }
 
                             /*
@@ -95,7 +96,7 @@ public class ReactorCustomSubscriberSink<T> extends GraphStageWithMaterializedVa
                                 System.out.printf("received onUpstreamFailure: %s%n", cause.getMessage());
                                 finishPromise.exceptionally((ex) -> Done.done());
                                 failStage(cause);
-                                subscriber.cancel();
+                                subscriber.onError(cause);
                             }
                         });
             }
