@@ -43,14 +43,14 @@ public class ReactorCustomSubscriberSink<T> extends GraphStageWithMaterializedVa
             final Subscription subscription = new Subscription() {
                 @Override
                 public void request(long n) {
-//                    System.out.println(String.format("subscription request %d", n));
+                    System.out.println(String.format("subscription: request received for %d", n));
                     pull(in);
                 }
 
                 @Override
                 public void cancel() {
-                    // implements close on cancel (must be after any pending onComplete)
-                    System.out.println("subscription cancel");
+                    // this isn't being called
+                    System.out.println("subscription: cancel received");
                 }
             };
 
@@ -81,9 +81,9 @@ public class ReactorCustomSubscriberSink<T> extends GraphStageWithMaterializedVa
                             @Override
                             public void onUpstreamFinish() {
                                 System.out.println("received onUpstreamFinish");
-                                finishPromise.complete(Done.done());
                                 completeStage();
-                                subscriber.onComplete();
+                                subscriber.onComplete(); // signal subscriber to shut down
+                                finishPromise.complete(Done.done());
                             }
 
                             /*
@@ -94,9 +94,9 @@ public class ReactorCustomSubscriberSink<T> extends GraphStageWithMaterializedVa
                             @Override
                             public void onUpstreamFailure(Throwable cause) {
                                 System.out.printf("received onUpstreamFailure: %s%n", cause.getMessage());
-                                finishPromise.exceptionally((ex) -> Done.done());
                                 failStage(cause);
-                                subscriber.onError(cause);
+                                subscriber.onError(cause); // signal subscriber to shut down
+                                finishPromise.exceptionally((ex) -> Done.done());
                             }
                         });
             }

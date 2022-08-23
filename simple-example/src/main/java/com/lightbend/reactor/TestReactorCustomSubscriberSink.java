@@ -14,6 +14,7 @@ import com.lightbend.ops.ReactorCustomSubscriberSink;
 import org.reactivestreams.Subscription;
 import reactor.core.publisher.BaseSubscriber;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.SignalType;
 
 import java.util.Arrays;
 import java.util.List;
@@ -28,22 +29,37 @@ public class TestReactorCustomSubscriberSink {
 
             class ReactorSubscriber<T> extends BaseSubscriber<T> {
 
+                @Override
                 public void hookOnSubscribe(Subscription subscription) {
-                    System.out.println("Subscribed:" + subscription.toString());
+                    System.out.println("hookOnSubscribe received:" + subscription.toString());
                     request(1);
                 }
 
+                @Override
                 public void hookOnNext(T value) {
-                    System.out.println(value);
+                    System.out.println(String.format("hookOnNext received %s", value.toString()));
                     request(1);
                 }
 
+                @Override
                 public void hookOnComplete() {
-
+                    System.out.println("hookOnComplete received.");
+                    // do whatever, and then notify the subscription we're done.
                 }
 
+                @Override
                 public void hookOnCancel() {
+                    System.out.println("hookOnCancel received.");
+                }
 
+/*                @Override
+                public void hookOnError(Throwable cause) {
+
+                }*/
+
+                @Override
+                public void hookFinally(SignalType type) {
+                    System.out.println(String.format("hookFinally received %s",type.toString()));
                 }
             }
 
