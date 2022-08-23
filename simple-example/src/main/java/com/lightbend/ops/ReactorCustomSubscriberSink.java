@@ -82,7 +82,9 @@ public class ReactorCustomSubscriberSink<T> extends GraphStageWithMaterializedVa
                             public void onUpstreamFinish() {
                                 System.out.println("received onUpstreamFinish");
                                 completeStage();
-                                subscriber.onComplete(); // signal subscriber to shut down
+                                // signal subscriber to shut down
+                                subscriber.onComplete();
+                                // may want to delay or set timeout to make sure subscriber has shut down
                                 finishPromise.complete(Done.done());
                             }
 
@@ -95,7 +97,9 @@ public class ReactorCustomSubscriberSink<T> extends GraphStageWithMaterializedVa
                             public void onUpstreamFailure(Throwable cause) {
                                 System.out.printf("received onUpstreamFailure: %s%n", cause.getMessage());
                                 failStage(cause);
-                                subscriber.onError(cause); // signal subscriber to shut down
+                                // signal subscriber to shut down
+                                subscriber.onError(cause);
+                                // may want to delay or set timeout to make sure subscriber has shut down
                                 finishPromise.exceptionally((ex) -> Done.done());
                             }
                         });
